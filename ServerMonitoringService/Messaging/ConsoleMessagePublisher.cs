@@ -11,7 +11,7 @@ public class ConsoleMessagePublisher : IMessagePublisher
         CancellationToken cancellationToken = default)
     {
         var message = JsonSerializer.Serialize(statistics);
-
+        Console.WriteLine("*************************************");
         Console.WriteLine($"Publishing to topic: {topic}");
         Console.WriteLine($"Message: {message}");
 

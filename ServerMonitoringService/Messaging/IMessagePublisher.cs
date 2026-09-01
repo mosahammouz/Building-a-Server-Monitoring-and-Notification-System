@@ -2,7 +2,7 @@ using ServerMonitoringService.Models;
 
 namespace ServerMonitoringService.Messaging;
 
-public interface IMessagePublisher
+public interface IMessagePublisher //an abstraction for message queuing
 {
     Task PublishAsync(
         ServerStatistics statistics,
