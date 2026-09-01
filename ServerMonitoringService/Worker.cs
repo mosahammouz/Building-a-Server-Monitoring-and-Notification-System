@@ -1,17 +1,37 @@
+using Microsoft.Extensions.Options;
+using ServerMonitoringService.Configuration;
+using ServerMonitoringService.Messaging;
+using ServerMonitoringService.Service;
+
 namespace ServerMonitoringService;
 
-public class Worker(ILogger<Worker> logger) : BackgroundService
+public class Worker(
+    ILogger<Worker> logger,
+    StatisticsCollector statisticsCollector,
+    IOptions<ServerStatisticsConfig> config,
+    IMessagePublisher messagePublisher) : BackgroundService
 {
-    protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+    protected override async Task ExecuteAsync(
+        CancellationToken stoppingToken)
     {
         while (!stoppingToken.IsCancellationRequested)
         {
-            if (logger.IsEnabled(LogLevel.Information))
-            {
-                logger.LogInformation("Worker running at: {time}", DateTimeOffset.Now);
-            }
+            var statistics = statisticsCollector.Collect();
+            var topic = $"ServerStatistics.{config.Value.ServerIdentifier}";
 
-            await Task.Delay(1000, stoppingToken);
+            await messagePublisher.PublishAsync(
+                statistics,
+                topic,
+                stoppingToken);
+
+            logger.LogInformation(
+                "Statistics published to {Topic}",
+                topic);
+
+            await Task.Delay(
+                TimeSpan.FromSeconds(
+                    config.Value.SamplingIntervalSeconds),
+                stoppingToken);
         }
     }
 }

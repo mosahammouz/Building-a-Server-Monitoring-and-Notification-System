@@ -1,7 +1,14 @@
 using ServerMonitoringService;
+using ServerMonitoringService.Configuration;
+using ServerMonitoringService.Messaging;
+using ServerMonitoringService.Service;
 
 var builder = Host.CreateApplicationBuilder(args);
-builder.Services.AddHostedService<Worker>();// Singleton lifetime
+builder.Services.Configure<ServerStatisticsConfig>(
+    builder.Configuration.GetSection("ServerStatisticsConfig"));
+builder.Services.AddSingleton<StatisticsCollector>();
+builder.Services.AddHostedService<Worker>();
+builder.Services.AddSingleton<IMessagePublisher, ConsoleMessagePublisher>();
 
 var host = builder.Build();
 host.Run();
