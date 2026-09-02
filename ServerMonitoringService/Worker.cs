@@ -9,7 +9,7 @@ public class Worker(
     ILogger<Worker> logger,
     StatisticsCollector statisticsCollector,
     IOptions<ServerStatisticsConfig> config,
-    IMessagePublisher messagePublisher) : BackgroundService
+    IMessagePublisher messagePublisher) : BackgroundService // messagePublisher is a ConsoleMessagePublisher in the DI container
 {
     protected override async Task ExecuteAsync(
         CancellationToken stoppingToken)

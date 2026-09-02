@@ -4,12 +4,13 @@
         <TargetFramework>net10.0</TargetFramework>
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
-        <UserSecretsId>dotnet-ServerMonitoringService-52554876-a1cd-4bbc-8e27-bc002375110f</UserSecretsId>
+        <UserSecretsId>dotnet-MessageProcessingService-2ca41f5b-eaba-4ba4-8031-8dada599c431</UserSecretsId>
     </PropertyGroup>
 
     <ItemGroup>
+        <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="10.0.11" />
         <PackageReference Include="Microsoft.Extensions.Hosting" Version="10.0.9" />
+        <PackageReference Include="MongoDB.Driver" Version="3.11.1" />
         <PackageReference Include="RabbitMQ.Client" Version="7.2.2" />
-        <PackageReference Include="System.Management" Version="10.0.11" />
     </ItemGroup>
 </Project>

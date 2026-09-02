@@ -1,4 +1,6 @@
 using System.Diagnostics;
+using Microsoft.Extensions.Options;
+using ServerMonitoringService.Configuration;
 using ServerMonitoringService.Models;
 
 namespace ServerMonitoringService.Service;
@@ -6,15 +8,20 @@ namespace ServerMonitoringService.Service;
 public class StatisticsCollector
 {
     private readonly Process _process;
-    public StatisticsCollector()
+    private readonly ServerStatisticsConfig _config;
+
+    public StatisticsCollector(IOptions<ServerStatisticsConfig> options)
     {
         _process = Process.GetCurrentProcess();
+        _config = options.Value;
     }
+
 
     public ServerStatistics Collect()
     {
         return new ServerStatistics
         {
+            ServerIdentifier = _config.ServerIdentifier,
             MemoryUsage = GetMemoryUsage(),
             AvailableMemory = GetAvailableMemory(),
             CpuUsage = GetCpuUsage(),
@@ -32,13 +39,13 @@ public class StatisticsCollector
         var memoryInfo = new ProcessStartInfo
         {
             FileName = "free",
-            Arguments = "-m",
+            Arguments = "-m",  // free -m in linux it displays RAM usage .
             RedirectStandardOutput = true,
             UseShellExecute = false,
             CreateNoWindow = true
         };
 
-        using var process = Process.Start(memoryInfo);
+        using var process = Process.Start(memoryInfo);// start executing memoryInfo prop.s commands
 
         if (process == null)
             return 0;
