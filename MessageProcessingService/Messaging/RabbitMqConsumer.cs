@@ -1,5 +1,6 @@
 using System.Text.Json;
 using MessageProcessingService.Configuration;
+using MessageProcessingService.Data;
 using MessageProcessingService.Models;
 using Microsoft.Extensions.Options;
 using RabbitMQ.Client;
@@ -9,10 +10,18 @@ namespace MessageProcessingService.Messaging;
 
 public class RabbitMqConsumer
 {
+    private readonly MongoDbContext _mongoDbContext;
     private readonly RabbitMqConfig _config;
     public RabbitMqConsumer(IOptions<RabbitMqConfig> options)
     {
         _config = options.Value;
+    }
+    public RabbitMqConsumer(
+        IOptions<RabbitMqConfig> options,
+        MongoDbContext mongoDbContext)
+    {
+        _config = options.Value;
+        _mongoDbContext = mongoDbContext;
     }
 
     public async Task StartAsync(CancellationToken cancellationToken)
@@ -60,6 +69,8 @@ public class RabbitMqConsumer
 
             if (statistics != null)
             {
+                await _mongoDbContext.ServerStatistics.InsertOneAsync(statistics);
+
                 Console.WriteLine(
                     $"Server: {statistics.ServerIdentifier}, " +
                     $"Memory: {statistics.MemoryUsage} MB, " +
