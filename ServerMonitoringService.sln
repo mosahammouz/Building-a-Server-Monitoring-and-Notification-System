@@ -4,6 +4,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServerMonitoringService", "
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MessageProcessingService", "MessageProcessingService\MessageProcessingService.csproj", "{DC7F040A-D708-4F91-B4EC-7F31BC7A0ADE}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SignalREventConsumerService", "SignalREventConsumerService\SignalREventConsumerService.csproj", "{B0C2995B-3400-4C97-BA62-17E44C2EC2C5}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SignalRHubService", "SignalRHubService\SignalRHubService.csproj", "{0F21D7DF-D029-49CE-A705-6C306E4E7BA8}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -18,5 +22,13 @@ Global
 		{DC7F040A-D708-4F91-B4EC-7F31BC7A0ADE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DC7F040A-D708-4F91-B4EC-7F31BC7A0ADE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DC7F040A-D708-4F91-B4EC-7F31BC7A0ADE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B0C2995B-3400-4C97-BA62-17E44C2EC2C5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B0C2995B-3400-4C97-BA62-17E44C2EC2C5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B0C2995B-3400-4C97-BA62-17E44C2EC2C5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B0C2995B-3400-4C97-BA62-17E44C2EC2C5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0F21D7DF-D029-49CE-A705-6C306E4E7BA8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0F21D7DF-D029-49CE-A705-6C306E4E7BA8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0F21D7DF-D029-49CE-A705-6C306E4E7BA8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0F21D7DF-D029-49CE-A705-6C306E4E7BA8}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

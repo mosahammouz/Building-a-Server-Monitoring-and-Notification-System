@@ -1,7 +1,9 @@
+using System.Text;
 using System.Text.Json;
 using MessageProcessingService.Configuration;
 using MessageProcessingService.Data;
 using MessageProcessingService.Models;
+using MessageProcessingService.Notification;
 using MessageProcessingService.Service;
 using Microsoft.Extensions.Options;
 using RabbitMQ.Client;
@@ -14,15 +16,18 @@ public class RabbitMqConsumer
     private readonly MongoDbContext _mongoDbContext;
     private readonly RabbitMqConfig _config;
     private readonly AnomalyDetectionService _anomalyDetectionService;
+    private readonly INotificationService _notificationService;
 
     public RabbitMqConsumer(
         IOptions<RabbitMqConfig> options,
         MongoDbContext mongoDbContext,
-        AnomalyDetectionService anomalyDetectionService)
+        AnomalyDetectionService anomalyDetectionService,
+        INotificationService notificationService)
     {
         _config = options.Value;
         _mongoDbContext = mongoDbContext;
         _anomalyDetectionService = anomalyDetectionService;
+        _notificationService = notificationService;
     }
 
     public async Task StartAsync(CancellationToken cancellationToken)
@@ -64,28 +69,38 @@ public class RabbitMqConsumer
         consumer.ReceivedAsync += async (_, eventArgs) =>
         {
             var body = eventArgs.Body.ToArray();
-            var message = System.Text.Encoding.UTF8.GetString(body);
+            var message = Encoding.UTF8.GetString(body);
 
             var statistics =
                 JsonSerializer.Deserialize<ServerStatistics>(message);
 
             if (statistics != null)
             {
-                // Store statistics in MongoDB
+                // Save statistics to MongoDB
                 await _mongoDbContext.ServerStatistics
                     .InsertOneAsync(statistics);
 
-                // Detect anomalies
+                // Detect anomalies and high usage
                 var alerts =
                     _anomalyDetectionService.Detect(statistics);
 
-                // Print detected alerts
                 foreach (var alert in alerts)
                 {
                     Console.WriteLine($"ALERT: {alert}");
+
+                    // Send the alert through SignalR
+                    if (alert.Contains("anomaly detected"))
+                    {
+                        await _notificationService
+                            .SendAnomalyAlertAsync(alert);
+                    }
+                    else if (alert.Contains("High"))
+                    {
+                        await _notificationService
+                            .SendHighUsageAlertAsync(alert);
+                    }
                 }
 
-                // Print received statistics
                 Console.WriteLine(
                     $"Server: {statistics.ServerIdentifier}, " +
                     $"Memory: {statistics.MemoryUsage} MB, " +
