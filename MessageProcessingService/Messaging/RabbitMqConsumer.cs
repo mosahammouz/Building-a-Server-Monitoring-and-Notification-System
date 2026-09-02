@@ -2,6 +2,7 @@ using System.Text.Json;
 using MessageProcessingService.Configuration;
 using MessageProcessingService.Data;
 using MessageProcessingService.Models;
+using MessageProcessingService.Service;
 using Microsoft.Extensions.Options;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
@@ -12,16 +13,16 @@ public class RabbitMqConsumer
 {
     private readonly MongoDbContext _mongoDbContext;
     private readonly RabbitMqConfig _config;
-    public RabbitMqConsumer(IOptions<RabbitMqConfig> options)
-    {
-        _config = options.Value;
-    }
+    private readonly AnomalyDetectionService _anomalyDetectionService;
+
     public RabbitMqConsumer(
         IOptions<RabbitMqConfig> options,
-        MongoDbContext mongoDbContext)
+        MongoDbContext mongoDbContext,
+        AnomalyDetectionService anomalyDetectionService)
     {
         _config = options.Value;
         _mongoDbContext = mongoDbContext;
+        _anomalyDetectionService = anomalyDetectionService;
     }
 
     public async Task StartAsync(CancellationToken cancellationToken)
@@ -38,7 +39,7 @@ public class RabbitMqConsumer
 
         var channel = await connection.CreateChannelAsync(
             cancellationToken: cancellationToken);
-        
+
         await channel.ExchangeDeclareAsync(
             exchange: "ServerStatistics",
             type: ExchangeType.Topic,
@@ -65,12 +66,26 @@ public class RabbitMqConsumer
             var body = eventArgs.Body.ToArray();
             var message = System.Text.Encoding.UTF8.GetString(body);
 
-            var statistics = JsonSerializer.Deserialize<ServerStatistics>(message);
+            var statistics =
+                JsonSerializer.Deserialize<ServerStatistics>(message);
 
             if (statistics != null)
             {
-                await _mongoDbContext.ServerStatistics.InsertOneAsync(statistics);
+                // Store statistics in MongoDB
+                await _mongoDbContext.ServerStatistics
+                    .InsertOneAsync(statistics);
 
+                // Detect anomalies
+                var alerts =
+                    _anomalyDetectionService.Detect(statistics);
+
+                // Print detected alerts
+                foreach (var alert in alerts)
+                {
+                    Console.WriteLine($"ALERT: {alert}");
+                }
+
+                // Print received statistics
                 Console.WriteLine(
                     $"Server: {statistics.ServerIdentifier}, " +
                     $"Memory: {statistics.MemoryUsage} MB, " +
