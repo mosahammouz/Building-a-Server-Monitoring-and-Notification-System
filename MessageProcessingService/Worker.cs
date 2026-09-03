@@ -11,8 +11,7 @@ public class Worker : BackgroundService
         _consumer = consumer;
     }
 
-    protected override async Task ExecuteAsync(
-        CancellationToken stoppingToken)
+    protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         await _consumer.StartAsync(stoppingToken);
     }

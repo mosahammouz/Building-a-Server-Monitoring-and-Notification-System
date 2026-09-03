@@ -1,4 +1,4 @@
-using System.Diagnostics;
+using System.Diagnostics; // u can get the WorkingSet64 (memory usage)
 using Microsoft.Extensions.Options;
 using ServerMonitoringService.Configuration;
 using ServerMonitoringService.Models;

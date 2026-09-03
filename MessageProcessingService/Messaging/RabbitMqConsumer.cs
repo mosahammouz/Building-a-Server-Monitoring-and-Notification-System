@@ -42,8 +42,7 @@ public class RabbitMqConsumer
 
         var connection = await factory.CreateConnectionAsync(cancellationToken);
 
-        var channel = await connection.CreateChannelAsync(
-            cancellationToken: cancellationToken);
+        var channel = await connection.CreateChannelAsync(cancellationToken: cancellationToken);
 
         await channel.ExchangeDeclareAsync(
             exchange: "ServerStatistics",
@@ -52,7 +51,7 @@ public class RabbitMqConsumer
             cancellationToken: cancellationToken);
 
         var queue = await channel.QueueDeclareAsync(
-            queue: "",
+            queue: "server-statistics-queue",
             durable: false,
             exclusive: true,
             autoDelete: true,
@@ -70,36 +69,10 @@ public class RabbitMqConsumer
         {
             var body = eventArgs.Body.ToArray();
             var message = Encoding.UTF8.GetString(body);
-
-            var statistics =
-                JsonSerializer.Deserialize<ServerStatistics>(message);
+            var statistics = JsonSerializer.Deserialize<ServerStatistics>(message);
 
             if (statistics != null)
             {
-                // Save statistics to MongoDB
-                await _mongoDbContext.ServerStatistics
-                    .InsertOneAsync(statistics);
-
-                // Detect anomalies and high usage
-                var alerts =
-                    _anomalyDetectionService.Detect(statistics);
-
-                foreach (var alert in alerts)
-                {
-                    Console.WriteLine($"ALERT: {alert}");
-
-                    // Send the alert through SignalR
-                    if (alert.Contains("anomaly detected"))
-                    {
-                        await _notificationService
-                            .SendAnomalyAlertAsync(alert);
-                    }
-                    else if (alert.Contains("High"))
-                    {
-                        await _notificationService
-                            .SendHighUsageAlertAsync(alert);
-                    }
-                }
 
                 Console.WriteLine(
                     $"Server: {statistics.ServerIdentifier}, " +
@@ -108,10 +81,14 @@ public class RabbitMqConsumer
                     $"CPU: {statistics.CpuUsage}%, " +
                     $"Time: {statistics.Timestamp}");
             }
+            else
+            {
+                Console.WriteLine("5. Statistics object IS NULL!");
+            }
 
             await Task.CompletedTask;
         };
-
+ 
         await channel.BasicConsumeAsync(
             queue: queue.QueueName,
             autoAck: true,

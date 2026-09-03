@@ -27,23 +27,20 @@ public class RabbitMqMessagePublisher : IMessagePublisher
             Password = _config.Password
         };
 
-        await using var connection =
-            await factory.CreateConnectionAsync(cancellationToken);
+        await using var connection = await factory.CreateConnectionAsync(cancellationToken);//connection => between worker and RabbitMq 
 
-        await using var channel =
-            await connection.CreateChannelAsync(
-                cancellationToken: cancellationToken);
+        await using var channel = await connection.CreateChannelAsync(cancellationToken: cancellationToken); // from chanel u can declare the exchange and queue
 
-        await channel.ExchangeDeclareAsync(
+        await channel.ExchangeDeclareAsync( //create the exchange
             exchange: "ServerStatistics",
             type: ExchangeType.Topic,
             durable: true,
             cancellationToken: cancellationToken);
 
         var message = JsonSerializer.Serialize(statistics);
-        var body = Encoding.UTF8.GetBytes(message);
+        var body = Encoding.UTF8.GetBytes(message); // UTF-8 bytes message
 
-        await channel.BasicPublishAsync(
+        await channel.BasicPublishAsync( // send data through it
             exchange: "ServerStatistics",
             routingKey: topic,
             body: body,
