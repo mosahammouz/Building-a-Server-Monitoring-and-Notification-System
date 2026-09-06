@@ -26,12 +26,18 @@ services:
       start_period: 10s
 
   signalr-hub:
+    build:
+      context: .
+      dockerfile: SignalRHubService/Dockerfile
     image: signalr-hub-service:latest
     container_name: signalr-hub
     ports:
       - "5177:8080"
 
   message-processing:
+    build:
+      context: .
+      dockerfile: MessageProcessingService/Dockerfile
     image: message-processing-service:latest
     container_name: message-processing
     depends_on:
@@ -59,6 +65,9 @@ services:
       AnomalyDetectionConfig__CpuUsageThresholdPercentage: 0.9
 
   server-monitoring:
+    build:
+      context: .
+      dockerfile: ServerMonitoringService/Dockerfile
     image: server-monitoring-service:latest
     container_name: server-monitoring
     depends_on:

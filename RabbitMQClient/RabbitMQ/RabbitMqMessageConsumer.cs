@@ -10,16 +10,15 @@ namespace RabbitMQClient.RabbitMq;
 public class RabbitMqMessageConsumer : IMessageConsumer
 {
     private readonly RabbitMqConfig _config;
-
     public RabbitMqMessageConsumer(IOptions<RabbitMqConfig> options)
     {
         _config = options.Value;
     }
 
     public async Task ConsumeAsync(
-        string queueName,
-        string exchangeName,
-        string routingKey,
+        string queueName,//server-statistics-queue
+        string exchangeName,//ServerStatistics
+        string routingKey,//ServerStatistics.* (linux1)
         Func<string, Task> messageHandler,
         CancellationToken cancellationToken = default)
     {
@@ -67,20 +66,20 @@ public class RabbitMqMessageConsumer : IMessageConsumer
             autoDelete: false,
             cancellationToken: cancellationToken);
 
-        await channel.QueueBindAsync(
+        await channel.QueueBindAsync( // bindin dead letter queue
             queue: deadLetterQueue,
             exchange: deadLetterExchange,
             routingKey: routingKey,
             cancellationToken: cancellationToken);
 
     
-        // Main Queue
+        
         var queueArguments = new Dictionary<string, object?>
         {
             ["x-dead-letter-exchange"] = deadLetterExchange,
             ["x-dead-letter-routing-key"] = routingKey
         };
-
+       // Main Queue
         var queue = await channel.QueueDeclareAsync(
             queue: queueName,
             durable: true,
@@ -135,14 +134,10 @@ public class RabbitMqMessageConsumer : IMessageConsumer
             consumer: consumer,
             cancellationToken: cancellationToken);
 
-        Console.WriteLine(
-            $"RabbitMQ consumer started. Queue: {queueName}");
+        Console.WriteLine($"RabbitMQ consumer started. Queue: {queueName}");
 
-        Console.WriteLine(
-            $"Dead Letter Queue: {deadLetterQueue}");
+        Console.WriteLine($"Dead Letter Queue: {deadLetterQueue}");
 
-        await Task.Delay(
-            Timeout.Infinite,
-            cancellationToken);
+        await Task.Delay(Timeout.Infinite, cancellationToken);
     }
 }
