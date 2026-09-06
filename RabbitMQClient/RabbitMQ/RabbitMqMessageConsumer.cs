@@ -96,7 +96,7 @@ public class RabbitMqMessageConsumer : IMessageConsumer
             cancellationToken: cancellationToken);
 
         // Consumer
-        var consumer = new AsyncEventingBasicConsumer(channel);
+        var consumer = new AsyncEventingBasicConsumer(channel);// to listen to the messages in the queue
 
         consumer.ReceivedAsync += async (_, eventArgs) =>
         {

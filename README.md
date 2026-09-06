@@ -1,4 +1,7 @@
 # **Building a Server Monitoring and Notification System**
+### this is  the RabbitMQ cluster i used 
+
+![rabbit.jpeg](pictures/rabbit.jpeg)
 
 ## **Task 1: Server Statistics Collection Service**
 
