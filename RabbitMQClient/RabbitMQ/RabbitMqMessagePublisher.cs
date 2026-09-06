@@ -16,11 +16,11 @@ public class RabbitMqMessagePublisher : IMessagePublisher
     }
 
     public async Task PublishAsync(
-        string message,
+        string message, //  we use message not direct obj (ServerStatistics) to decouple the broker from the worker in the service 
         string topic,
         CancellationToken cancellationToken = default)
     {
-        var factory = new ConnectionFactory
+        var factory = new ConnectionFactory //from the RabbitMQ.Client package.
         {
             HostName = _config.HostName,
             Port = _config.Port,
