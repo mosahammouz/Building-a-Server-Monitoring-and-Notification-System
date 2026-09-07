@@ -9,7 +9,7 @@ using RabbitMQClient.RabbitMq;
 
 var builder = Host.CreateApplicationBuilder(args);
 
-builder.Services.AddHostedService<Worker>();
+builder.Services.AddHostedService<Worker>(); //to run ExecuteAsync
 
 builder.Services.Configure<RabbitMQClient.Configuration.RabbitMqConfig>(
     builder.Configuration.GetSection("RabbitMqConfig"));

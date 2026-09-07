@@ -28,12 +28,8 @@ public class RabbitMqMessagePublisher : IMessagePublisher
             Password = _config.Password
         };
 
-        await using var connection =
-            await factory.CreateConnectionAsync(cancellationToken);
-
-        await using var channel =
-            await connection.CreateChannelAsync(
-                cancellationToken: cancellationToken);
+        await using var connection = await factory.CreateConnectionAsync(cancellationToken);
+        await using var channel = await connection.CreateChannelAsync(cancellationToken: cancellationToken);
 
         await channel.ExchangeDeclareAsync(
             exchange: "ServerStatistics",

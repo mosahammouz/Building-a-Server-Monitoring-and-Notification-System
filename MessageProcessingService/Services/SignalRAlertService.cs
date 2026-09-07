@@ -21,11 +21,9 @@ public class SignalRAlertService
         Console.WriteLine("Connected to SignalR Hub.");
     }
 
-    public async Task SendAnomalyAlertAsync(string message)
+    public async Task SendAnomalyAlertAsync(string message)  
     {
-        await _connection.InvokeAsync(
-            "SendAnomalyAlert",
-            message);
+        await _connection.InvokeAsync("SendAnomalyAlert", message); // call SendAnomalyAlert func from Notification hub from connection (2)
     }
 
     public async Task SendHighUsageAlertAsync(string message)

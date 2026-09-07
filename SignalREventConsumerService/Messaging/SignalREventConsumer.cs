@@ -13,14 +13,11 @@ public class SignalREventConsumer
         _config = options.Value;
     }
 
-    public async Task StartAsync(CancellationToken cancellationToken)
+    public async Task StartAsync(CancellationToken cancellationToken) // will be started auto from the SignalR event consumer
     {
-        var connection = new HubConnectionBuilder()
-            .WithUrl(_config.SignalRUrl)
-            .WithAutomaticReconnect()
-            .Build();
+        var connection = new HubConnectionBuilder().WithUrl(_config.SignalRUrl).WithAutomaticReconnect().Build();
 
-        connection.On<string>("AnomalyAlert", message =>
+        connection.On<string>("AnomalyAlert", message => //will listen for the SignalR event from SignalR hub service (4)
         {
             Console.WriteLine($"ANOMALY ALERT: {message}");
         });

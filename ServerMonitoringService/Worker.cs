@@ -12,32 +12,21 @@ public class Worker(
     IOptions<ServerStatisticsConfig> config,
     IMessagePublisher messagePublisher) : BackgroundService
 {
-    protected override async Task ExecuteAsync(
-        CancellationToken stoppingToken)
+    protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         while (!stoppingToken.IsCancellationRequested)
         {
             var statistics = statisticsCollector.Collect();
-
-            var topic =
-                $"ServerStatistics.{config.Value.ServerIdentifier}";
-
-            var message =
-                JsonSerializer.Serialize(statistics);
+            var topic = $"ServerStatistics.{config.Value.ServerIdentifier}";
+            var message = JsonSerializer.Serialize(statistics);
 
             await messagePublisher.PublishAsync(
                 message,
                 topic,
                 stoppingToken);
 
-            logger.LogInformation(
-                "Statistics published to {Topic}",
-                topic);
-
-            await Task.Delay(
-                TimeSpan.FromSeconds(
-                    config.Value.SamplingIntervalSeconds),
-                stoppingToken);
+            logger.LogInformation("Statistics published to {Topic}", topic);
+            await Task.Delay(TimeSpan.FromSeconds(config.Value.SamplingIntervalSeconds), stoppingToken); //5 sec
         }
     }
 }

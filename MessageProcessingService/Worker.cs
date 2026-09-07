@@ -9,6 +9,7 @@ public class Worker : BackgroundService
 {   private readonly SignalRAlertService _signalRAlertService;
     private readonly IMessageConsumer _consumer;
     private readonly AnomalyDetectionService _anomalyDetectionService;
+    
     public Worker(IMessageConsumer consumer , AnomalyDetectionService anomalyDetectionService,SignalRAlertService signalRAlertService)
     {
         _consumer = consumer;
@@ -20,7 +21,8 @@ public class Worker : BackgroundService
     protected override async Task ExecuteAsync(
         CancellationToken stoppingToken)
     {
-        await _signalRAlertService.StartAsync();
+        await _signalRAlertService.StartAsync(); // is vital
+        
            await _consumer.ConsumeAsync(
             queueName: "server-statistics-queue",
             exchangeName: "ServerStatistics",
@@ -39,7 +41,7 @@ public class Worker : BackgroundService
         {
             Console.WriteLine($"ALERT : {alert}");
             Console.WriteLine("***********");
-            await _signalRAlertService.SendAnomalyAlertAsync(alert);
+            await _signalRAlertService.SendAnomalyAlertAsync(alert); //call the func from SignalR Alert Service (1)
         }
 
         await Task.CompletedTask;

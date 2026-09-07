@@ -30,12 +30,9 @@ public class RabbitMqMessageConsumer : IMessageConsumer
             Password = _config.Password
         };
 
-        await using var connection =
-            await factory.CreateConnectionAsync(cancellationToken);
+        await using var connection = await factory.CreateConnectionAsync(cancellationToken);
 
-        await using var channel =
-            await connection.CreateChannelAsync(
-                cancellationToken: cancellationToken);
+        await using var channel = await connection.CreateChannelAsync(cancellationToken: cancellationToken);
 
         
         // Main Exchange
@@ -48,7 +45,6 @@ public class RabbitMqMessageConsumer : IMessageConsumer
     
         // Dead Letter Exchange
         var deadLetterExchange = $"{exchangeName}.dlx";
-
         await channel.ExchangeDeclareAsync(
             exchange: deadLetterExchange,
             type: ExchangeType.Topic,
@@ -106,7 +102,7 @@ public class RabbitMqMessageConsumer : IMessageConsumer
             try
             {
                 // Process the message
-                await messageHandler(message);
+                await messageHandler(message); // functional programming
 
                 // ACK only after successful processing
                 await channel.BasicAckAsync(
