@@ -27,7 +27,7 @@ builder.Services.AddSingleton<AnomalyDetectionService>();
 builder.Services.AddSingleton<IMessageConsumer, RabbitMqMessageConsumer>();
 builder.Services.AddSingleton<MongoDbContext>();
 builder.Services.AddSingleton<INotificationService, SignalRNotificationService>();
-
+builder.Services.AddSingleton<SignalRAlertService>();
 var host = builder.Build();
 
 host.Run();

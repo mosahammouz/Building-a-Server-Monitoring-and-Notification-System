@@ -6,19 +6,22 @@ using RabbitMQClient.Interfaces;
 namespace MessageProcessingService;
 
 public class Worker : BackgroundService
-{
+{   private readonly SignalRAlertService _signalRAlertService;
     private readonly IMessageConsumer _consumer;
     private readonly AnomalyDetectionService _anomalyDetectionService;
-    public Worker(IMessageConsumer consumer , AnomalyDetectionService anomalyDetectionService)
+    public Worker(IMessageConsumer consumer , AnomalyDetectionService anomalyDetectionService,SignalRAlertService signalRAlertService)
     {
         _consumer = consumer;
         _anomalyDetectionService = anomalyDetectionService;
+        _signalRAlertService = signalRAlertService;
+
     }
 
     protected override async Task ExecuteAsync(
         CancellationToken stoppingToken)
     {
-        await _consumer.ConsumeAsync(
+        await _signalRAlertService.StartAsync();
+           await _consumer.ConsumeAsync(
             queueName: "server-statistics-queue",
             exchangeName: "ServerStatistics",
             routingKey: "ServerStatistics.*",
@@ -35,6 +38,8 @@ public class Worker : BackgroundService
         foreach (var alert in alerts)
         {
             Console.WriteLine($"ALERT : {alert}");
+            Console.WriteLine("***********");
+            await _signalRAlertService.SendAnomalyAlertAsync(alert);
         }
 
         await Task.CompletedTask;

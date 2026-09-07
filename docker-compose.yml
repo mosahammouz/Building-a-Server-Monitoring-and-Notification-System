@@ -34,6 +34,18 @@ services:
     ports:
       - "5177:8080"
 
+  signalr-event-consumer:
+    build:
+      context: .
+      dockerfile: SignalREventConsumerService/Dockerfile
+    image: signalr-event-consumer-service:latest
+    container_name: signalr-event-consumer
+    depends_on:
+      signalr-hub:
+        condition: service_started
+    environment:
+      SignalRConfig__SignalRUrl: http://signalr-hub:8080/notificationHub
+
   message-processing:
     build:
       context: .
